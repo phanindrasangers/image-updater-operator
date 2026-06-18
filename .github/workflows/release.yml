@@ -51,6 +51,8 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository }}:${{ steps.ver.outputs.version }}
             ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
