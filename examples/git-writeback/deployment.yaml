@@ -16,7 +16,7 @@ metadata:
     # Write the selected tag to Git instead of patching the live Deployment.
     image-updater.saphire.com/write-back: git
     # HTTPS clone URL of the config repo the operator writes to. Edit this.
-    image-updater.saphire.com/git-repo: https://github.com/phanindrasangers/CHANGE-ME-config.git
+    image-updater.saphire.com/git-repo: https://github.com/phanindrasangers/image-updater-operator.git
     image-updater.saphire.com/git-branch: main
     # Secret (this namespace) with keys username/password for HTTPS auth.
     image-updater.saphire.com/git-secret: git-https
