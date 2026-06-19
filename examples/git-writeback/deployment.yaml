@@ -25,13 +25,13 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: { app: web }
+    matchLabels: {app: web}
   template:
     metadata:
-      labels: { app: web }
+      labels: {app: web}
     spec:
       containers:
         - name: app
-          image: docker.io/phanindrasangers/nginx:v1
+          image: docker.io/phanindrasangers/nginx:v3
           ports:
             - containerPort: 80
