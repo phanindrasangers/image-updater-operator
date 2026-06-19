@@ -4,6 +4,11 @@ A Kubernetes operator that keeps your workload container images current. It watc
 
 It is a generic, registry-agnostic alternative to tying image automation to a single GitOps tool: define an `ImagePolicy`, annotate a workload, and choose how updates land.
 
+<figure markdown="span">
+  ![image-updater-operator demo](demo.gif){ width="820" }
+  <figcaption>A policy selects the newest tag, the operator commits it to Git, and the live workload is left for GitOps to roll out.</figcaption>
+</figure>
+
 ## Why
 
 - **Any registry.** Anything that speaks the Docker Registry v2 API: Docker Hub, GHCR, ECR, GCR, ACR, Nexus, JFrog Artifactory.
