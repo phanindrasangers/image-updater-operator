@@ -22,6 +22,17 @@ metadata:
     image-updater.saphire.com/git-secret: git-https
     # Edit a plain manifest in the repo at this repo-relative path.
     image-updater.saphire.com/write-back-target: manifest:examples/git-writeback/deployment.yaml
+    # Optional: customize the commit. Omit for the built-in default message.
+    # The message is a Go template; context fields are Name, Namespace, Kind,
+    # Changes (each with File/Container/Repository/Tag/Image/OldImage), and the
+    # singular Container/Repository/Tag/Image/OldImage of the first change.
+    # image-updater.saphire.com/git-commit-message: |
+    #   ci: bump {{.Container}} to {{.Tag}}
+    #
+    #   {{range .Changes}}- {{.File}}: {{.Image}}
+    #   {{end}}
+    # image-updater.saphire.com/git-author-name: ci-bot
+    # image-updater.saphire.com/git-author-email: ci-bot@example.com
 spec:
   replicas: 1
   selector:

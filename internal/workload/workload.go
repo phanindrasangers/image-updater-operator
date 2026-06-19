@@ -82,6 +82,19 @@ const (
 	// HelmImageTagPrefix gives the dotted values key holding the tag for a
 	// container in a helm target, e.g. helm.image-tag.app: "image.tag".
 	HelmImageTagPrefix = AnnotationPrefix + "helm.image-tag."
+
+	// GitCommitMessage is a Go text/template rendering the commit message for a
+	// git write-back. When absent, a built-in default is used. The template
+	// context is gitwriteback.CommitData (fields: Kind, Name, Namespace, Changes,
+	// and the singular Container/Repository/Tag/Image/OldImage of the first
+	// change).
+	GitCommitMessage = AnnotationPrefix + "git-commit-message"
+
+	// GitAuthorName and GitAuthorEmail override the committer identity used for
+	// git write-back. They default to image-updater-operator and
+	// image-updater@saphire.com when unset.
+	GitAuthorName  = AnnotationPrefix + "git-author-name"
+	GitAuthorEmail = AnnotationPrefix + "git-author-email"
 )
 
 // Method is the write-back method selected for a workload.
@@ -104,12 +117,17 @@ func WriteBack(annotations map[string]string) Method {
 }
 
 // GitConfig is the per-workload Git write-back configuration parsed from
-// annotations. Branch defaults to "main" when unset.
+// annotations. Branch defaults to "main" when unset. CommitMessage, AuthorName,
+// and AuthorEmail are empty when unset, leaving the controller to apply its
+// defaults.
 type GitConfig struct {
-	Repo   string
-	Branch string
-	Secret string
-	Target string
+	Repo          string
+	Branch        string
+	Secret        string
+	Target        string
+	CommitMessage string
+	AuthorName    string
+	AuthorEmail   string
 }
 
 // GitSettings extracts the Git write-back configuration from annotations.
@@ -119,10 +137,13 @@ func GitSettings(annotations map[string]string) GitConfig {
 		branch = "main"
 	}
 	return GitConfig{
-		Repo:   annotations[GitRepo],
-		Branch: branch,
-		Secret: annotations[GitSecret],
-		Target: annotations[WriteBackTarget],
+		Repo:          annotations[GitRepo],
+		Branch:        branch,
+		Secret:        annotations[GitSecret],
+		Target:        annotations[WriteBackTarget],
+		CommitMessage: annotations[GitCommitMessage],
+		AuthorName:    annotations[GitAuthorName],
+		AuthorEmail:   annotations[GitAuthorEmail],
 	}
 }
 

@@ -316,12 +316,33 @@ each reconcile, committing only when the selected tag is not already present.
 | `write-back-target` | for git | | `helm:<file>`, `kustomize:<dir>`, or `manifest:<file>`, relative to the repo root. |
 | `helm.image-tag.<container>` | for helm | | Dotted values key that receives the selected tag, e.g. `image.tag` or `images.0.tag`. A numeric segment indexes a list. |
 | `helm.image-name.<container>` | no | | Dotted values key that receives the repository, e.g. `image.repository`. |
+| `git-commit-message` | no | built-in | Go template for the commit message. See the template context below. |
+| `git-author-name` | no | `image-updater-operator` | Committer name. |
+| `git-author-email` | no | `image-updater@saphire.com` | Committer email. |
 
-The commit author defaults to `image-updater-operator <image-updater@saphire.com>`
-and the message is `chore(images): automated image update` followed by the list
-of edits. On error the operator records an event on the workload: `CloneError`,
-`AuthError`, `PushError`, `WriteBackError`, or `WriteBackMisconfigured`. A
-successful push records `ImageCommitted` with the commit SHA.
+The commit message is a Go template. When `git-commit-message` is unset, the
+default is `chore(images): update <name>` followed by one body line per changed
+container (`<container>: <old> -> <new> (<file>)`). The template context is:
+
+| Field | Description |
+|-------|-------------|
+| `.Name`, `.Namespace`, `.Kind` | The workload being updated. |
+| `.Changes` | List of edits, each with `.File`, `.Container`, `.Repository`, `.Tag`, `.Image`, `.OldImage`. |
+| `.Container`, `.Repository`, `.Tag`, `.Image`, `.OldImage` | Convenience fields mirroring the first change, for the common single-image case. |
+
+```yaml
+image-updater.saphire.com/git-commit-message: |
+  ci: bump {{.Container}} to {{.Tag}}
+
+  {{range .Changes}}- {{.File}}: {{.Image}}
+  {{end}}
+```
+
+An invalid template records a `CommitTemplateError` warning and falls back to
+the default rather than blocking the write-back. On error the operator records
+an event on the workload: `CloneError`, `AuthError`, `PushError`,
+`WriteBackError`, or `WriteBackMisconfigured`. A successful push records
+`ImageCommitted` with the commit SHA.
 
 The credential Secret matches the clone URL scheme. HTTPS:
 

@@ -237,7 +237,7 @@ func (r *WorkloadReconciler) writeBackGit(
 	}
 
 	changed := map[string]struct{}{}
-	var summaries []string
+	var changes []gitwriteback.Change
 	for _, p := range pendings {
 		nameKey, tagKey := workload.HelmKeys(annotations, p.name)
 		rel, did, err := gitwriteback.Apply(dir, gitwriteback.Edit{
@@ -254,7 +254,14 @@ func (r *WorkloadReconciler) writeBackGit(
 		}
 		if did {
 			changed[rel] = struct{}{}
-			summaries = append(summaries, fmt.Sprintf("%s: %s -> %s", rel, p.name, p.desired))
+			changes = append(changes, gitwriteback.Change{
+				File:       rel,
+				Container:  p.name,
+				Repository: p.ip.Spec.ImageRepository,
+				Tag:        p.ip.Status.LatestTag,
+				Image:      p.desired,
+				OldImage:   p.container.Image,
+			})
 		}
 	}
 
@@ -266,10 +273,14 @@ func (r *WorkloadReconciler) writeBackGit(
 	for p := range changed {
 		paths = append(paths, p)
 	}
-	message := "chore(images): automated image update\n\n" + strings.Join(summaries, "\n")
+	message := r.commitMessage(obj, cfg.CommitMessage, gitwriteback.CommitData{
+		Kind:      r.Adapter.Name,
+		Name:      obj.GetName(),
+		Namespace: obj.GetNamespace(),
+		Changes:   changes,
+	}.WithPrimary())
 	sha, err := gitwriteback.CommitAndPush(ctx, repo, paths,
-		gitwriteback.Author{Name: "image-updater-operator", Email: "image-updater@saphire.com"},
-		message, cfg.Branch, auth, true)
+		r.gitAuthor(cfg), message, cfg.Branch, auth, true)
 	if err != nil {
 		r.warn(obj, "PushError", err.Error())
 		return nil
@@ -291,6 +302,31 @@ func (r *WorkloadReconciler) gitAuth(ctx context.Context, namespace, url, secret
 		return nil, fmt.Errorf("reading git secret %q: %w", secretName, err)
 	}
 	return gitwriteback.AuthFromSecret(url, s.Data)
+}
+
+// commitMessage renders the workload's commit-message template, falling back to
+// the built-in default and warning when a custom template is invalid.
+func (r *WorkloadReconciler) commitMessage(obj client.Object, tmpl string, data gitwriteback.CommitData) string {
+	msg, err := gitwriteback.RenderCommitMessage(tmpl, data)
+	if err == nil {
+		return msg
+	}
+	r.warn(obj, "CommitTemplateError", err.Error()+"; using default message")
+	msg, _ = gitwriteback.RenderCommitMessage("", data)
+	return msg
+}
+
+// gitAuthor resolves the committer identity, applying the operator defaults when
+// the workload does not override them.
+func (r *WorkloadReconciler) gitAuthor(cfg workload.GitConfig) gitwriteback.Author {
+	author := gitwriteback.Author{Name: "image-updater-operator", Email: "image-updater@saphire.com"}
+	if cfg.AuthorName != "" {
+		author.Name = cfg.AuthorName
+	}
+	if cfg.AuthorEmail != "" {
+		author.Email = cfg.AuthorEmail
+	}
+	return author
 }
 
 func effectiveMode(ip *imagesv1alpha1.ImagePolicy, annotations map[string]string) imagesv1alpha1.UpdateMode {

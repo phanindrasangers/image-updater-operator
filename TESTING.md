@@ -214,6 +214,25 @@ values file:
        image-updater.saphire.com/helm.image-tag.app: image.tag
    ```
 
+   The commit message and author are optional. When unset the operator uses a
+   built-in default (`chore(images): update <name>` plus a per-container body).
+   To customize, add a Go-template message and/or an author identity:
+
+   ```yaml
+   image-updater.saphire.com/git-commit-message: |
+     ci: bump {{.Container}} to {{.Tag}}
+
+     {{range .Changes}}- {{.File}}: {{.Image}}
+     {{end}}
+   image-updater.saphire.com/git-author-name: ci-bot
+   image-updater.saphire.com/git-author-email: ci-bot@example.com
+   ```
+
+   Template context: `Name`, `Namespace`, `Kind`, `Changes` (each with `File`,
+   `Container`, `Repository`, `Tag`, `Image`, `OldImage`), plus the singular
+   `Container`/`Repository`/`Tag`/`Image`/`OldImage` of the first change. An
+   invalid template logs a warning and falls back to the default.
+
 3. Once the policy selects a tag, the operator commits and pushes the change;
    your GitOps controller then syncs it.
 
