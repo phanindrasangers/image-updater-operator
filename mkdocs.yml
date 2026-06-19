@@ -1,0 +1,70 @@
+site_name: Image Updater Operator
+site_description: A Kubernetes operator that keeps workload images current from a registry, patching live or committing to Git for GitOps to sync.
+site_url: https://phanindrasangers.github.io/image-updater-operator/
+repo_url: https://github.com/phanindrasangers/image-updater-operator
+repo_name: phanindrasangers/image-updater-operator
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+  - Concepts:
+      - How it works: concepts/how-it-works.md
+      - Write-back modes: concepts/write-back.md
+  - Reference:
+      - ImagePolicy: reference/imagepolicy.md
+      - Workload annotations: reference/annotations.md
+      - Git write-back: reference/git-writeback.md
+      - Registry authentication: reference/registries.md
+  - Guides:
+      - Dashboard: guides/dashboard.md
+      - Webhooks: guides/webhooks.md
+  - Troubleshooting: troubleshooting.md
