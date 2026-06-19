@@ -205,7 +205,13 @@ func (r *WorkloadReconciler) patchLive(
 	if err := r.Patch(ctx, obj, client.MergeFrom(base)); err != nil {
 		return ctrl.Result{}, err
 	}
-	logf.FromContext(ctx).Info("patched workload images", "name", obj.GetName())
+	images := make([]string, 0, len(pendings))
+	for _, p := range pendings {
+		images = append(images, p.name+"="+p.desired)
+	}
+	logf.FromContext(ctx).Info("live patch: updated workload image",
+		"kind", r.Adapter.Name, "workload", obj.GetName(), "namespace", obj.GetNamespace(),
+		"updated", strings.Join(images, ","))
 	return ctrl.Result{RequeueAfter: requeueAfter}, nil
 }
 
@@ -297,7 +303,10 @@ func (r *WorkloadReconciler) writeBackGit(
 	}
 	r.event(obj, corev1.EventTypeNormal, "ImageCommitted",
 		fmt.Sprintf("committed %s to %s@%s: %s", strings.Join(paths, ", "), cfg.Repo, cfg.Branch, sha[:min(7, len(sha))]))
-	logf.FromContext(ctx).Info("committed workload images", "name", obj.GetName(), "sha", sha)
+	logf.FromContext(ctx).Info("git write-back: committed image update",
+		"kind", r.Adapter.Name, "workload", obj.GetName(), "namespace", obj.GetNamespace(),
+		"repo", cfg.Repo, "branch", cfg.Branch, "files", strings.Join(paths, ","),
+		"sha", sha[:min(7, len(sha))])
 	return nil
 }
 

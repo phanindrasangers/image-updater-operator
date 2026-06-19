@@ -5,8 +5,8 @@ description: |
   watching external registries. It patches workloads in place or commits the
   change to Git for a GitOps controller to sync.
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.2.0
+appVersion: "0.2.0"
 keywords:
   - image-updater
   - gitops

@@ -89,6 +89,16 @@ func (r *ImagePolicyReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, nil
 	}
 
+	// Scan at most once per interval. Reconcile is triggered far more often than
+	// the interval (our own status writes re-trigger the watch, plus cache
+	// resyncs), so without this gate each interval tick produces a burst of
+	// scans. We still scan immediately on the first reconcile and whenever the
+	// spec changes (a generation bump), so config edits take effect at once.
+	if due, after := scanDue(&ip, interval); !due {
+		log.V(1).Info("scan not due yet", "nextScanIn", after.Round(time.Second))
+		return ctrl.Result{RequeueAfter: after}, nil
+	}
+
 	dockerConfig, err := r.loadDockerConfig(ctx, &ip)
 	if err != nil {
 		return r.fail(ctx, &ip, "AuthError", err)
@@ -132,7 +142,12 @@ func (r *ImagePolicyReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			"selected %s for repository %s", selected, ip.Spec.ImageRepository)
 	}
 
-	log.V(1).Info("scan complete", "selected", selected, "tags", len(tags), "requeueAfter", interval)
+	log.Info("scanned repository",
+		"repository", ip.Spec.ImageRepository,
+		"selected", selected,
+		"tags", len(tags),
+		"changed", changed,
+		"nextScanIn", interval)
 	return ctrl.Result{RequeueAfter: interval}, nil
 }
 
@@ -162,6 +177,11 @@ func (r *ImagePolicyReconciler) fail(ctx context.Context, ip *imagesv1alpha1.Ima
 
 	setReady(ip, metav1.ConditionFalse, reason, cause.Error())
 	ip.Status.ObservedGeneration = ip.Generation
+	// Record the attempt time so the interval gate also throttles failing scans;
+	// otherwise a failure (which does not set LatestImage) would re-trigger
+	// immediately and hammer the registry.
+	now := metav1.Now()
+	ip.Status.LastScanTime = &now
 	if err := r.Status().Update(ctx, ip); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -191,6 +211,20 @@ func setReady(ip *imagesv1alpha1.ImagePolicy, status metav1.ConditionStatus, rea
 		}
 	}
 	ip.Status.Conditions = append(ip.Status.Conditions, cond)
+}
+
+// scanDue reports whether a scan should run now, and if not, how long until the
+// next one. A scan is due on the first reconcile, whenever the spec has changed
+// since the last scan (generation bump), or once the interval has elapsed.
+func scanDue(ip *imagesv1alpha1.ImagePolicy, interval time.Duration) (bool, time.Duration) {
+	if ip.Status.LastScanTime == nil || ip.Status.ObservedGeneration != ip.Generation {
+		return true, 0
+	}
+	elapsed := time.Since(ip.Status.LastScanTime.Time)
+	if elapsed >= interval {
+		return true, 0
+	}
+	return false, interval - elapsed
 }
 
 func effectiveInterval(d time.Duration) time.Duration {
