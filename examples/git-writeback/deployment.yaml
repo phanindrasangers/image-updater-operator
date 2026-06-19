@@ -43,6 +43,6 @@ spec:
     spec:
       containers:
         - name: app
-          image: docker.io/phanindrasangers/nginx:v5
+          image: docker.io/phanindrasangers/nginx:v6
           ports:
             - containerPort: 80
