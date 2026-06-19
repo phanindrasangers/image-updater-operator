@@ -30,16 +30,28 @@ It is a generic, registry-agnostic alternative to tying image automation to a si
                           └────────────────────────────┘
 ```
 
-## Next steps
+## Start here
 
-- [Installation](getting-started/installation.md) — install with Helm.
-- [Quickstart](getting-started/quickstart.md) — a working policy and workload in minutes.
-- [How it works](concepts/how-it-works.md) — the reconciliation model.
-- [Write-back modes](concepts/write-back.md) — live patching vs Git write-back.
+New to the operator? Follow this path:
+
+1. [Installation](getting-started/installation.md) — install with Helm.
+2. [Quickstart](getting-started/quickstart.md) — a working policy and workload in minutes (live patching, no Git needed).
+3. [How it works](concepts/how-it-works.md) and [Write-back modes](concepts/write-back.md) — understand the model before going further.
+
+## Guides
+
+Task-focused walkthroughs, each listing its prerequisites:
+
+- [GitOps write-back](guides/git-writeback.md) — commit updates to Git for Argo CD or Flux to sync.
+- [Approvals and dry-run](guides/safe-rollouts.md) — gate or preview updates on sensitive workloads.
+- [Dashboard](guides/dashboard.md) — the built-in monitoring UI.
+- [Instant updates with webhooks](guides/webhooks.md) — react to registry pushes without waiting for the interval.
 
 ## Reference
 
+Look up exact fields and options:
+
 - [ImagePolicy](reference/imagepolicy.md) — the CRD spec and selection strategies.
 - [Workload annotations](reference/annotations.md) — every annotation the operator reads.
-- [Git write-back](reference/git-writeback.md) — targets, commit templates, and credentials.
+- [Git write-back annotations](reference/git-writeback.md) — targets, commit templates, and credentials.
 - [Registry authentication](reference/registries.md) — per-registry credential setup.

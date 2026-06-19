@@ -1,6 +1,11 @@
-# Webhooks
+# Instant updates with webhooks
 
 By default the operator scans on each policy's `interval`. To react immediately when a registry pushes a new tag, point the registry's webhook at the operator's receiver to trigger an out-of-band rescan.
+
+!!! info "Prerequisites"
+    - The operator [installed](../getting-started/installation.md), with at least one `ImagePolicy`.
+    - The webhook receiver enabled and exposed (step below) so your registry can reach it from outside the cluster: an Ingress or a `LoadBalancer`/`NodePort` Service.
+    - Optionally, a shared token to authenticate incoming requests.
 
 ## The receiver
 

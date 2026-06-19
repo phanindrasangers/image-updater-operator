@@ -56,15 +56,17 @@ nav:
   - Getting started:
       - Installation: getting-started/installation.md
       - Quickstart: getting-started/quickstart.md
+  - Guides:
+      - GitOps write-back: guides/git-writeback.md
+      - Approvals and dry-run: guides/safe-rollouts.md
+      - Dashboard: guides/dashboard.md
+      - Instant updates with webhooks: guides/webhooks.md
   - Concepts:
       - How it works: concepts/how-it-works.md
       - Write-back modes: concepts/write-back.md
   - Reference:
       - ImagePolicy: reference/imagepolicy.md
       - Workload annotations: reference/annotations.md
-      - Git write-back: reference/git-writeback.md
+      - Git write-back annotations: reference/git-writeback.md
       - Registry authentication: reference/registries.md
-  - Guides:
-      - Dashboard: guides/dashboard.md
-      - Webhooks: guides/webhooks.md
   - Troubleshooting: troubleshooting.md

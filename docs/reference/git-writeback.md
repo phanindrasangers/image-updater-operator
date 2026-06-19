@@ -1,6 +1,9 @@
-# Git write-back
+# Git write-back annotations
 
 When a workload sets `write-back: git`, the operator clones the repository, edits the image reference in your YAML, commits, and pushes. It never patches the live workload. Edits are made through the YAML node tree, so unrelated content and comments are preserved. There are no marker comments in your source.
+
+!!! tip "Looking for the walkthrough?"
+    This page is the annotation reference. For a step-by-step setup with prerequisites, follow the [GitOps write-back guide](../guides/git-writeback.md).
 
 ## Targets
 

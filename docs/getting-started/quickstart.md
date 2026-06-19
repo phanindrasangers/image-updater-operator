@@ -1,8 +1,11 @@
 # Quickstart
 
-This walks through a minimal live-patch setup: a policy that tracks the latest 1.x release of nginx, and a Deployment that opts in.
+This walks through a minimal live-patch setup: a policy that tracks the latest 1.x release of nginx, and a Deployment that opts in. The operator patches the running Deployment directly, so you need no Git repo and no GitOps controller.
 
-Make sure the operator is [installed](installation.md) first.
+!!! info "Prerequisites"
+    - The operator [installed](installation.md) and running.
+    - `kubectl` pointed at that cluster.
+    - The example uses the public `docker.io/library/nginx`, so no registry credentials are needed. For a private repository, see [Registry authentication](../reference/registries.md).
 
 ## 1. Create an ImagePolicy
 
