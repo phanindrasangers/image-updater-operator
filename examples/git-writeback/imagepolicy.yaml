@@ -1,0 +1,22 @@
+# Tracks tags on docker.io/phanindrasangers/nginx. The tags are v1, v2, so this
+# uses a regex strategy that captures the number after "v" and selects the
+# highest. The repo is public, so no registryRef/secret is needed. The selected
+# tag is written back to Git by the annotated Deployment, not patched onto the
+# live object.
+apiVersion: images.saphire.com/v1alpha1
+kind: ImagePolicy
+metadata:
+  name: app-stable
+  namespace: default
+spec:
+  imageRepository: docker.io/phanindrasangers/nginx
+  interval: 1m
+  updateMode: Automatic
+  filterTags:
+    pattern: '^v\d+$'
+  policy:
+    regex:
+      pattern: '^v(\d+)$'
+      extract: "$1"
+      numeric: true
+      order: desc

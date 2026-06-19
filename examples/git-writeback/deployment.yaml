@@ -1,0 +1,37 @@
+# Live workload monitored by the operator. Because write-back is "git", the
+# operator does NOT patch this object in the cluster. It clones the repo named
+# below, edits the manifest target (examples/git-writeback/deployment.yaml in
+# that repo), commits, and pushes. Your GitOps controller then syncs the change.
+#
+# Commit a copy of this file to your config repo at the path named in
+# write-back-target so the operator has something to edit.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: default
+  annotations:
+    # Map the "app" container to the ImagePolicy below.
+    image-updater.saphire.com/policy.app: app-stable
+    # Write the selected tag to Git instead of patching the live Deployment.
+    image-updater.saphire.com/write-back: git
+    # HTTPS clone URL of the config repo the operator writes to. Edit this.
+    image-updater.saphire.com/git-repo: https://github.com/phanindrasangers/CHANGE-ME-config.git
+    image-updater.saphire.com/git-branch: main
+    # Secret (this namespace) with keys username/password for HTTPS auth.
+    image-updater.saphire.com/git-secret: git-https
+    # Edit a plain manifest in the repo at this repo-relative path.
+    image-updater.saphire.com/write-back-target: manifest:examples/git-writeback/deployment.yaml
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: web }
+  template:
+    metadata:
+      labels: { app: web }
+    spec:
+      containers:
+        - name: app
+          image: docker.io/phanindrasangers/nginx:v1
+          ports:
+            - containerPort: 80
