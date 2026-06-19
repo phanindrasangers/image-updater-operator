@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
@@ -80,6 +81,15 @@ func (r *WorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	obj := r.Adapter.New()
 	if err := r.Get(ctx, req.NamespacedName, obj); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// Skip controller-owned objects. A Deployment propagates its annotations to
+	// its ReplicaSet (and on to Pods), so without this both the Deployment and
+	// the ReplicaSet reconcilers would act on the same logical workload, racing
+	// to write back. Only the top-level owner (or a standalone object) is acted
+	// on; its controller manages the rest.
+	if metav1.GetControllerOf(obj) != nil {
+		return ctrl.Result{}, nil
 	}
 
 	annotations := obj.GetAnnotations()
@@ -384,8 +394,11 @@ func (r *WorkloadReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	// Watch only annotated objects that are not controller-owned, so a
+	// Deployment's ReplicaSet (which inherits the annotations) is never
+	// independently reconciled.
 	annotated := predicate.NewPredicateFuncs(func(o client.Object) bool {
-		return len(workload.ContainerPolicies(o.GetAnnotations())) > 0
+		return metav1.GetControllerOf(o) == nil && len(workload.ContainerPolicies(o.GetAnnotations())) > 0
 	})
 
 	return ctrl.NewControllerManagedBy(mgr).
