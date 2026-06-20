@@ -1,0 +1,8 @@
+# Artifact Hub repository metadata.
+# Push this to the OCI registry to claim ownership and become a verified
+# publisher. See the release workflow / docs for the oras push command.
+# The email below MUST match the account you sign in to Artifact Hub with.
+repositoryID: 50f3fa2b-fbac-40ab-8b4c-96174428815c
+owners:
+  - name: phanindrasangers
+    email: phanindra.sangers@gmail.com

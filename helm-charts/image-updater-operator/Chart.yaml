@@ -12,8 +12,31 @@ keywords:
   - gitops
   - operator
   - registry
-home: https://github.com/saphire/image-updater-operator
+home: https://github.com/phanindrasangers/image-updater-operator
 sources:
-  - https://github.com/saphire/image-updater-operator
+  - https://github.com/phanindrasangers/image-updater-operator
 maintainers:
-  - name: Saphire
+  - name: phanindrasangers
+    url: https://github.com/phanindrasangers
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: Basic Install
+  artifacthub.io/links: |
+    - name: source
+      url: https://github.com/phanindrasangers/image-updater-operator
+    - name: documentation
+      url: https://phanindrasangers.github.io/image-updater-operator
+  artifacthub.io/images: |
+    - name: manager
+      image: ghcr.io/phanindrasangers/image-updater-operator:0.2.0
+  artifacthub.io/changes: |
+    - kind: added
+      description: Customizable Git write-back commit message and author
+    - kind: added
+      description: Optional Service for the monitoring dashboard
+    - kind: changed
+      description: Scan once per interval with clear per-update logs
+    - kind: fixed
+      description: Skip controller-owned workloads to avoid duplicate write-back

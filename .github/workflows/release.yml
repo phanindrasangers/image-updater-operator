@@ -63,6 +63,18 @@ jobs:
           helm push "image-updater-operator-${{ steps.ver.outputs.version }}.tgz" \
             "oci://${{ env.REGISTRY }}/${{ steps.owner.outputs.owner }}/charts"
 
+      # Publish the Artifact Hub repository-metadata file so the OCI chart repo
+      # can be claimed as a verified publisher. The owner email in
+      # artifacthub-repo.yml must match your Artifact Hub account.
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Push Artifact Hub metadata
+        run: |
+          oras push \
+            "${{ env.REGISTRY }}/${{ steps.owner.outputs.owner }}/charts/image-updater-operator:artifacthub.io" \
+            helm-charts/image-updater-operator/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
