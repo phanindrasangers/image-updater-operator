@@ -12,6 +12,13 @@ ordering.
 
 It is built with Kubebuilder and controller-runtime.
 
+[Docs](https://phanindrasangers.github.io/image-updater-operator/) ·
+[Roadmap](ROADMAP.md) ·
+[Contributing](CONTRIBUTING.md) ·
+[Code of Conduct](CODE_OF_CONDUCT.md) ·
+[Security policy](SECURITY.md) ·
+[Maintainers](MAINTAINERS.md)
+
 ## Contents
 
 - [How it works](#how-it-works)
