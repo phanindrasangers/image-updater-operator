@@ -5,7 +5,7 @@ This file lists the maintainers of image-updater-operator, in accordance with [C
 | Name | GitHub | Email | Organization |
 |------|--------|-------|---------------|
 | Phanindra Sangers | [@phanindrasangers](https://github.com/phanindrasangers) | phanindra.sangers@gmail.com | Individual |
-| <!-- TODO: name --> | [@SathvikaP](https://github.com/SathvikaP) | psathvika.2002@gmail.com | Individual |
+| Pallapothula Sathvika | [@SathvikaP](https://github.com/SathvikaP) | psathvika.2002@gmail.com | Individual |
 
 ## Becoming a maintainer
 
